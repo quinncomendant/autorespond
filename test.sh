@@ -7,8 +7,6 @@ if [[ ! -f /var/qmail/bin/qmail-queue ]]; then
     chmod +x /var/qmail/bin/qmail-queue;
 fi
 
-echo "=== Testing autorespond template parsing ===";
-
 # Set required environment variables.
 export SENDER="sender@example.com"; # The envelope sender address of the message.
 export EXT="recipient"; # For autorepond, this is the local recipientname. For qmail, this is the portion of the local part of the recipient address following the first dash.
@@ -17,6 +15,8 @@ export LOCAL="recipient"; # The local part of the recipient address.
 
 # Create temporary logs directory
 logs=$(mktemp -d)
+
+echo -e "=== Testing autorespond template parsing ===\nExecuting ./autorespond 3600 5 help_message '$logs' 1 '\$'";
 
 # Generate test email and pipe directly to autorespond;
 echo "From: sender@example.com
