@@ -341,6 +341,13 @@ void read_headers( FILE *fp )
 			act_header->content = safe_realloc( act_header->content, len + 1 );
 			strncat( act_header->content, ptr, len );
 			act_header->content[len] = '\0';
+			
+			/* Strip trailing newlines */
+			len = strlen(act_header->content);
+			while (len > 0 && (act_header->content[len-1] == '\n' || act_header->content[len-1] == '\r')) {
+				act_header->content[len-1] = '\0';
+				len--;
+			}
 			break;
 		default :
 			if ( act_header != (headers *)NULL )
@@ -370,6 +377,13 @@ void read_headers( FILE *fp )
 
 			act_header->content = safe_malloc( strlen( ptr ) + 1 );
 			strcpy( act_header->content, ptr );
+
+			/* Strip trailing newlines */
+			len = strlen(act_header->content);
+			while (len > 0 && (act_header->content[len-1] == '\n' || act_header->content[len-1] == '\r')) {
+				act_header->content[len-1] = '\0';
+				len--;
+			}
 
 			break;
 		}
@@ -706,7 +720,7 @@ char *TheDomain;
 	sprintf(filename,"tmp%u.%u",getpid(),timer);
 	f = fopen(filename,"wb"); 
 
-	fprintf( f, "%sTo: %s\nFrom: %s\nSubject: Re:%s\n%s\n", 
+	fprintf( f, "%sTo: %s\nX-Original-From: %s\nX-Original-Subject: Re:%s\n%s\n", 
 	            my_delivered_to, sender, rpath, inspect_headers( "Subject", (char *) NULL ), message );
 
 	if ( message_handling == 1 ) {

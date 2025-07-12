@@ -19,10 +19,18 @@ logs=$(mktemp -d)
 echo -e "=== Testing autorespond template parsing ===\nExecuting ./autorespond 3600 5 help_message '$logs' 1 '\$'";
 
 # Generate test email and pipe directly to autorespond;
-echo "From: sender@example.com
-To: recipient-ext@example.net
-Subject: Test message
-Date: $(date -R)
+echo "Date: $(date -R)
+From: Synthetic Sender <sender@example.com>
+Reply-To: FreeTubeApp/FreeTube <reply+ABUQXNB4LLBDEUCPIEGJBSWGO3W2XEVBNHHLCV4RU4@reply.github.com>
+To: Synthetic Recipient <recipient-ext@example.net>
+Cc: Quinn Comendant <quinn@strangecode.com>,
+  Manual <manual@noreply.github.com>
+Subject: Re: [Lorem/ipsum] [Bug]: Error: Lorem ipsum dolor sit amet,
+ consectetur adipisicing elit, sed do eiusmod tempor incididunt ut
+ veniam. (Issue #7159)
+Message-ID: <Lorem/ipsum/7159/3043151119@github.com>
+In-Reply-To: <Lorem/ipsum/7159@github.com>
+References: <Lorem/ipsum/7159@github.com>
 
 This is a test email to check autorespond template functionality.
 " | ./autorespond 3600 5 help_message "$logs" 1 '$';
