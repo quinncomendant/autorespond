@@ -53,8 +53,9 @@ Usage is as follows:
 
      arsender - from address in generated message, or:
 
-       + = blank from envelope ! 
-       $ = To: address will be used
+       + = blank from envelope (empty sender)
+       $ = recipient address will be used (EXT@HOST from qmail environment) <default>
+       any other value = used as-is as the from address
 
 
 For example, in your ~alias directory, create a .qmail-help file with
