@@ -79,17 +79,19 @@ RPLINE - Return-Path
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
-#include <sys/file.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <sys/wait.h>
 #include <ctype.h>
+#include <regex.h>
 
 #define DEFAULT_MH	1	/* default value for message_handling flag */
 #define DEFAULT_FROM	"$"	/* default "from" for the autorespond */
 
 #define WITH_OMESSAGE	1
 
+#define SENDER_FILTER_LIST "(bounce.*@|do.?not.?reply.*@|no.?reply.*@|alert.*@|help.*@|service.*@|offers.*@|sales.*@|newsletter.*@|announcement.*@)|[@\\.](abcnews\\.go\\.com|activecampaign\\.com|acxiom\\.com|airbnb\\.com|aliexpress\\.com|amazon\\.com|amazonses\\.com|americanexpress\\.com|apnews\\.com|atlassian\\.com|audible\\.com|aweber\\.com|bankofamerica\\.com|bbc\\.com|beehiiv\\.com|benchmark\\.email|bestbuy\\.com|bitbucket\\.org|bluesky\\.app|booking\\.com|bostonglobe\\.com|bronto\\.com|bsky\\.app|buttondown\\.email|campaignmonitor\\.com|cashapp\\.com|cbsnews\\.com|chase\\.com|cheetahmail\\.com|chicagotribune\\.com|circleci\\.com|clubhouse\\.com|cnn\\.com|codecov\\.io|constantcontact\\.com|convertkit\\.com|crisp\\.chat|deezer\\.com|desk\\.com|discord\\.com|discoursemail\\.com|discoveryplus\\.com|disneyplus\\.com|docker\\.com|drift\\.com|drip\\.com|ebay\\.com|edx\\.org|elasticemail\\.com|eloqua\\.com|emailoctopus\\.com|emarsys\\.com|epsilon\\.com|etsy\\.com|exacttarget\\.com|expedia\\.com|experian\\.com|facebook\\.com|facebookmail\\.com|flickr\\.com|foxnews\\.com|freshdesk\\.com|freshworks\\.com|getresponse\\.com|ghost\\.org|github\\.com|gitlab\\.com|google\\.com|groove\\.co|gumroad\\.com|hbomax\\.com|helpscout\\.com|helpshift\\.com|hilton\\.com|homedepot\\.com|hotels\\.com|hubspot\\.com|hulu\\.com|instagram\\.com|intercom\\.com|iterable\\.com|jenkins\\.io|kayak\\.com|kayako\\.com|kik\\.com|klaviyo\\.com|latimes\\.com|line\\.me|linkedin\\.com|listrak\\.com|livechat\\.com|lyft\\.com|mailchimpapp\\.com|mailerlite\\.com|mailersend\\.com|mailgun\\.net|mailjet\\.com|mandrill\\.com|marketo\\.com|marriott\\.com|mastercard\\.com|mastodon\\.social|mautic\\.org|medium\\.com|meetup\\.com|mlsend\\.com|moosend\\.com|nbcnews\\.com|netflix\\.com|newegg\\.com|nextdoor\\.com|npmjs\\.com|npr\\.org|nypost\\.com|nytimes\\.com|olark\\.com|omnisend\\.com|pandora\\.com|paramountplus\\.com|pardot\\.com|patreon\\.com|paypal\\.com|peacocktv\\.com|pepipost\\.com|phplist\\.com|pinterest\\.com|politico\\.com|postmark\\.com|postmarkapp\\.com|primevideo\\.com|quickbooks\\.intuit\\.com|reddit\\.com|responsys\\.com|reuters\\.com|revue\\.getrevue\\.co|sailthru\\.com|salesforce\\.com|sendfox\\.com|sendgrid\\.net|sendinblue\\.com|sendpulse\\.com|sendwithus\\.com|sendy\\.co|sfgate\\.com|shopify\\.com|signal\\.org|silverpop\\.com|skype\\.com|skyscanner\\.net|slack\\.com|smtp\\.com|snapchat\\.com|socketlabs\\.com|sparkpost\\.com|spotify\\.com|squareup\\.com|stackoverflow\\.com|stripe\\.com|substack\\.com|target\\.com|tawk\\.to|telegram\\.org|theguardian\\.com|threads\\.net|tiktok\\.com|tinyletter\\.com|tripadvisor\\.com|trivago\\.com|tumblr\\.com|turbosmtp\\.com|twitch\\.tv|twitter\\.com|uber\\.com|usatoday\\.com|uservoice\\.com|venmo\\.com|viber\\.com|vimeo\\.com|visa\\.com|walmart\\.com|washingtonpost\\.com|wayfair\\.com|wechat\\.com|wellsfargo\\.com|whatsapp\\.com|wsj\\.com|x\\.com|yesmail\\.com|youtube\\.com|zellepay\\.com|zendesk\\.com|zoom\\.us|zopim\\.com)(>|$)"
 
 #define HR_BUFFER_SIZE 1024
 
@@ -544,6 +546,24 @@ void print_header_chain()
 
 
 /**********************************************************
+** regex_matches_header - Check if header matches sender filter list */
+
+int regex_matches_header(const char *header_str) {
+    regex_t regex;
+    int ret;
+    
+    ret = regcomp(&regex, SENDER_FILTER_LIST, REG_EXTENDED | REG_ICASE);
+    if (ret) return 0; /* return 0 on regex compilation error */
+    
+    ret = regexec(&regex, header_str, 0, NULL, 0);
+    regfree(&regex);
+    
+    return (ret == 0); /* return 1 if match, 0 if no match */
+}
+
+
+
+/**********************************************************
 ** main */
 
 int main(int argc, char ** argv)
@@ -665,6 +685,74 @@ char *TheDomain;
 		fprintf(stderr,"AUTORESPOND: Junk mail received.\n");
 		_exit(0); /* don't reply to bulk, junk, or list mail */
 	}
+	
+	/* Check for List-Id header */
+	if ( inspect_headers("list-id", (char *)NULL ) != (char *)NULL )
+	{
+		fprintf(stderr,"AUTORESPOND: Message has List-Id header, ignoring.\n");
+		_exit(0);
+	}
+	
+	/* Check for List-Unsubscribe header */
+	if ( inspect_headers("list-unsubscribe", (char *)NULL ) != (char *)NULL )
+	{
+		fprintf(stderr,"AUTORESPOND: Message has List-Unsubscribe header, ignoring.\n");
+		_exit(0);
+	}
+	
+	/* Check for X-Patreon-UUID header */
+	if ( inspect_headers("x-patreon-uuid", (char *)NULL ) != (char *)NULL )
+	{
+		fprintf(stderr,"AUTORESPOND: Message has X-Patreon-UUID header, ignoring.\n");
+		_exit(0);
+	}
+	
+	/* Check for X-Mailgun-Tag header */
+	if ( inspect_headers("x-mailgun-tag", (char *)NULL ) != (char *)NULL )
+	{
+		fprintf(stderr,"AUTORESPOND: Message has X-Mailgun-Tag header, ignoring.\n");
+		_exit(0);
+	}
+	
+	/* Check X-Spam-Level for asterisks */
+	ptr = inspect_headers("x-spam-level", (char *)NULL );
+	if ( ptr != NULL && strchr( ptr, '*' ) != NULL )
+	{
+		fprintf(stderr,"AUTORESPOND: X-Spam-Level header contains asterisk, ignoring: %s.\n", ptr);
+		_exit(0);
+	}
+	
+	/* Check Sender header against filter list */
+	ptr = inspect_headers("sender", (char *)NULL );
+	if ( ptr != NULL && regex_matches_header( ptr ) )
+	{
+		fprintf(stderr,"AUTORESPOND: Sender header matches filter list, ignoring: %s.\n", ptr);
+		_exit(0);
+	}
+	
+	/* Check From header against filter list */
+	ptr = inspect_headers("from", (char *)NULL );
+	if ( ptr != NULL && regex_matches_header( ptr ) )
+	{
+		fprintf(stderr,"AUTORESPOND: From header matches filter list, ignoring: %s.\n", ptr);
+		_exit(0);
+	}
+	
+	/* Check Reply-To header against filter list */
+	ptr = inspect_headers("reply-to", (char *)NULL );
+	if ( ptr != NULL && regex_matches_header( ptr ) )
+	{
+		fprintf(stderr,"AUTORESPOND: Reply-To header matches filter list, ignoring: %s.\n", ptr);
+		_exit(0);
+	}
+	
+	/* Check Return-Path header against filter list */
+	ptr = inspect_headers("return-path", (char *)NULL );
+	if ( ptr != NULL && regex_matches_header( ptr ) )
+	{
+		fprintf(stderr,"AUTORESPOND: Return-Path header matches filter list, ignoring: %s.\n", ptr);
+		_exit(0);
+	}
 
 	/*check the logs*/
 	if(chdir(dir) == -1) {
@@ -721,7 +809,7 @@ char *TheDomain;
 	f = fopen(filename,"wb"); 
 
 	fprintf( f, "%sTo: %s\nX-Original-From: %s\nX-Original-Subject: Re:%s\n%s\n", 
-	            my_delivered_to, sender, rpath, inspect_headers( "Subject", (char *) NULL ), message );
+        my_delivered_to, sender, rpath, inspect_headers( "Subject", (char *) NULL ), message );
 
 	if ( message_handling == 1 ) {
 		fprintf( f, "%s\n\n", "-------- Original Message --------" );
