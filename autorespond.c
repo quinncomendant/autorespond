@@ -739,9 +739,9 @@ char *TheDomain;
 		_exit(0);
 	}
 	
-	/* User-Agent: Heirloom mailx is a CLI mail agent */
+	/* Check for CLI-based mail agents */
 	ptr = inspect_headers("user-agent", (char *)NULL );
-	if ( ptr != NULL && strstr( ptr, "mailx" ) != NULL )
+	if ( ptr != NULL && (strstr( ptr, "mailx" ) != NULL || strstr( ptr, "s-nail" ) != NULL) )
 	{
 		fprintf(stderr,"AUTORESPOND: User-Agent header contains mailx, ignoring: %s.\n", ptr);
 		_exit(0);
