@@ -5,9 +5,9 @@
 	E-mail: e-huss@netmeridian.com
 
 	Patched 2000 by Matthias Henze <matthias@mhcsoftware.de>
-        Patched 2001 by Brad Dameron <bdameron@tscnet.com>
-        Patched 2016 by Joakim Karlsson <joakim@roffe.nu>
-        Patched 2024 by Roberto Puzzanghera <roberto dot puzzanghera at sagredo dot eu>
+		Patched 2001 by Brad Dameron <bdameron@tscnet.com>
+		Patched 2016 by Joakim Karlsson <joakim@roffe.nu>
+		Patched 2024 by Roberto Puzzanghera <roberto dot puzzanghera at sagredo dot eu>
 
 	Usage:
 
@@ -19,7 +19,7 @@
 		dir - directory to store list of e-mail addresses
 
 		optional parameters:
-     		flag - heandling of original message:
+			flag - heandling of original message:
 			0 - append nothing
 			1 - append quoted original message without atatchments
 
@@ -34,12 +34,12 @@
 					the new commandline options are optional by now
 		BD 06/2001	2.0.0   Removed excess code, cleaned up some code
 		JKA 04/2016     2.0.6	Fixed Message-ID to comply with RFC
-                RP 07/2024      Fixed several compilation warnings. Destination dir is now /usr/local
+				RP 07/2024      Fixed several compilation warnings. Destination dir is now /usr/local
 
-        MH - Matthias Henze <matthias@mhcsoftware.de>
-        BD - Brad Dameron <bdameron@tscnet.com>
-        JKA - Joakim Karlsson <joakim@roffe.nu>
-        RP - Roberto Puzzanghera <roberto dot puzzanghera at sagredo dot eu>
+		MH - Matthias Henze <matthias@mhcsoftware.de>
+		BD - Brad Dameron <bdameron@tscnet.com>
+		JKA - Joakim Karlsson <joakim@roffe.nu>
+		RP - Roberto Puzzanghera <roberto dot puzzanghera at sagredo dot eu>
 
 	TODO:
 
@@ -211,11 +211,13 @@ char msg_buffer[256];
 
 	/*open a pipe to qmail-queue*/
 	if(pipe(pim)==-1 || pipe(pie)==-1) {
+		fprintf(stderr, "AUTORESPOND: Reply failed to send from %s to %s: %s.\n", from, recipients[0], strerror(errno));
 		return -1;
 	}
 	pid = vfork();
 	if(pid == -1) {
 		/*failure*/
+		fprintf(stderr, "AUTORESPOND: Reply failed to send from %s to %s: vfork failed - %s.\n", from, recipients[0], strerror(errno));
 		return -1;
 	}
 	if(pid == 0) {
@@ -225,27 +227,28 @@ char msg_buffer[256];
 		/*switch the pipes to fd 0 and 1
 		  pim[0] goes to 0 (stdin)...the message*/
 		if(fcntl(pim[0],F_GETFL,0) == -1) {
-/*			fprintf(stderr,"Failure getting status flags.\n");*/
+			fprintf(stderr, "AUTORESPOND: Reply failed to send from %s to %s: Failed to get status flags for message pipe.\n", from, recipients[0]);
 			_exit(120);
 		}
 		close(0);
 		if(fcntl(pim[0],F_DUPFD,0)==-1) {
-/*			fprintf(stderr,"Failure duplicating file descriptor.\n");*/
+			fprintf(stderr, "AUTORESPOND: Reply failed to send from %s to %s: Failed to duplicate message pipe descriptor.\n", from, recipients[0]);
 			_exit(120);
 		}
 		close(pim[0]);
 		/*pie[0] goes to 1 (stdout)*/
 		if(fcntl(pie[0],F_GETFL,0) == -1) {
-/*			fprintf(stderr,"Failure getting status flags.\n");*/
+			fprintf(stderr, "AUTORESPOND: Reply failed to send from %s to %s: Failed to get status flags for envelope pipe.\n", from, recipients[0]);
 			_exit(120);
 		}
 		close(1);
 		if(fcntl(pie[0],F_DUPFD,1)==-1) {
-/*			fprintf(stderr,"Failure duplicating file descriptor.\n");*/
+			fprintf(stderr, "AUTORESPOND: Reply failed to send from %s to %s: Failed to duplicate envelope pipe descriptor.\n", from, recipients[0]);
 			_exit(120);
 		}
 		close(pie[0]);
 		if(chdir(QMAIL_LOCATION) == -1) {
+			fprintf(stderr, "AUTORESPOND: Reply failed to send from %s to %s: Failed to change to qmail directory.\n", from, recipients[0]);
 			_exit(120);
 		}
 		execv(*binqqargs,binqqargs);
@@ -256,6 +259,7 @@ char msg_buffer[256];
 	fdm = fdopen(pim[1],"wb");					/*updating*/
 	fde = fdopen(pie[1],"wb");
 	if(fdm==NULL || fde==NULL) {
+		fprintf(stderr, "AUTORESPOND: Reply failed to send from %s to %s: Failed to open pipe streams.\n", from, recipients[0]);
 		return -1;
 	}
 	close(pim[0]);
@@ -299,10 +303,12 @@ char msg_buffer[256];
 	} while ((r != pid) && ((r != -1) || (errno == EINTR)));
 	if(r != pid) {
 		/*failed while waiting for qmail-queue*/
+		fprintf(stderr, "AUTORESPOND: Reply failed to send from %s to %s: Failed while waiting for qmail-queue.\n", from, recipients[0]);
 		return -1;
 	}
 	if(wstat & 127) {
 		/*failed while waiting for qmail-queue*/
+		fprintf(stderr, "AUTORESPOND: Reply failed to send from %s to %s: qmail-queue terminated by signal %d.\n", from, recipients[0], wstat & 127);
 		return -1;
 	}
 	/*the exit code*/
@@ -310,8 +316,10 @@ char msg_buffer[256];
 	if((wstat >> 8)!=0) {
 		/*non-zero exit status
 		  failed while waiting for qmail-queue*/
+		fprintf(stderr, "AUTORESPOND: Reply failed to send from %s to %s: qmail-queue exited with status %d.\n", from, recipients[0], wstat >> 8);
 		return -1;
 	}
+	fprintf(stderr, "AUTORESPOND: Reply sent from %s to %s.\n", from, recipients[0]);
 	return 0;
 }
 
@@ -489,8 +497,8 @@ char *return_header( char *tag )
 		if ( (tag != (char *)NULL && strcasecmp(tag,act_header->tag ) == 0) || tag == (char *)NULL )
 		{
 			len = strlen( b ) + 
-			      strlen( act_header->tag ) + 1 + 
-			      strlen( act_header->content );
+				  strlen( act_header->tag ) + 1 + 
+				  strlen( act_header->content );
 
 			b = safe_realloc( b, len + 1);
 
@@ -549,16 +557,16 @@ void print_header_chain()
 ** regex_matches_header - Check if header matches sender filter list */
 
 int regex_matches_header(const char *header_str) {
-    regex_t regex;
-    int ret;
-    
-    ret = regcomp(&regex, SENDER_FILTER_LIST, REG_EXTENDED | REG_ICASE);
-    if (ret) return 0; /* return 0 on regex compilation error */
-    
-    ret = regexec(&regex, header_str, 0, NULL, 0);
-    regfree(&regex);
-    
-    return (ret == 0); /* return 1 if match, 0 if no match */
+	regex_t regex;
+	int ret;
+	
+	ret = regcomp(&regex, SENDER_FILTER_LIST, REG_EXTENDED | REG_ICASE);
+	if (ret) return 0; /* return 0 on regex compilation error */
+	
+	ret = regexec(&regex, header_str, 0, NULL, 0);
+	regfree(&regex);
+	
+	return (ret == 0); /* return 1 if match, 0 if no match */
 }
 
 
@@ -679,8 +687,8 @@ char *TheDomain;
 		_exit(100);			/*hard error*/
 	}
 	if ( inspect_headers("precedence", "junk" ) != (char *)NULL ||
-	     inspect_headers("precedence", "bulk" ) != (char *)NULL ||
-	     inspect_headers("precedence", "list" ) != (char *)NULL )
+		 inspect_headers("precedence", "bulk" ) != (char *)NULL ||
+		 inspect_headers("precedence", "list" ) != (char *)NULL )
 	{
 		fprintf(stderr,"AUTORESPOND: Junk mail received.\n");
 		_exit(0); /* don't reply to bulk, junk, or list mail */
@@ -826,7 +834,7 @@ char *TheDomain;
 	f = fopen(filename,"wb"); 
 
 	fprintf( f, "%sTo: %s\nX-Original-From: %s\nX-Original-Subject: Re:%s\n%s\n", 
-        my_delivered_to, sender, rpath, inspect_headers( "Subject", (char *) NULL ), message );
+		my_delivered_to, sender, rpath, inspect_headers( "Subject", (char *) NULL ), message );
 
 	if ( message_handling == 1 ) {
 		fprintf( f, "%s\n\n", "-------- Original Message --------" );
@@ -878,6 +886,3 @@ char *TheDomain;
 	_exit(0);
 	return 0;					/*compiler warning squelch*/
 }
-
-
-
