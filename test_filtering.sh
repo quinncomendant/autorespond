@@ -466,6 +466,26 @@ Subject: System message
 System content." 0;
 export SENDER="sender@example.com";
 
+# Test 43: Email with a X-Report-Abuse-To header.
+run_test "Email with a X-Report-Abuse-To header." \
+"Date: $(date -R)
+From: transactional@example.com
+To: recipient@example.net
+X-Report-Abuse-To: abuse@example.com
+Subject: This is probably a transactional email
+
+Beep boop." 0;
+
+# Test 44: Email sent from the mailx client
+run_test "Email with a User-Agent: Heirloom mailx" \
+"Date: $(date -R)
+From: user@server.example.com
+To: user@example.net
+User-Agent: Heirloom mailx
+Subject: perhaps from a cron script
+
+Output from, e.g., crond. " 0;
+
 # Clean up
 rm -rf "$logs";
 rm -f /tmp/test_output.txt;

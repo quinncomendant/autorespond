@@ -91,7 +91,7 @@ RPLINE - Return-Path
 
 #define WITH_OMESSAGE	1
 
-#define SENDER_FILTER_LIST "(bounce.*@|do.?not.?reply.*@|no.?reply.*@|alert.*@|help.*@|service.*@|offers.*@|sales.*@|newsletter.*@|announcement.*@)|[@\\.](abcnews\\.go\\.com|activecampaign\\.com|acxiom\\.com|airbnb\\.com|aliexpress\\.com|amazon\\.com|amazonses\\.com|americanexpress\\.com|apnews\\.com|atlassian\\.com|audible\\.com|aweber\\.com|bankofamerica\\.com|bbc\\.com|beehiiv\\.com|benchmark\\.email|bestbuy\\.com|bitbucket\\.org|bluesky\\.app|booking\\.com|bostonglobe\\.com|bronto\\.com|bsky\\.app|buttondown\\.email|campaignmonitor\\.com|cashapp\\.com|cbsnews\\.com|chase\\.com|cheetahmail\\.com|chicagotribune\\.com|circleci\\.com|clubhouse\\.com|cnn\\.com|codecov\\.io|constantcontact\\.com|convertkit\\.com|crisp\\.chat|deezer\\.com|desk\\.com|discord\\.com|discoursemail\\.com|discoveryplus\\.com|disneyplus\\.com|docker\\.com|drift\\.com|drip\\.com|ebay\\.com|edx\\.org|elasticemail\\.com|eloqua\\.com|emailoctopus\\.com|emarsys\\.com|epsilon\\.com|etsy\\.com|exacttarget\\.com|expedia\\.com|experian\\.com|facebook\\.com|facebookmail\\.com|flickr\\.com|foxnews\\.com|freshdesk\\.com|freshworks\\.com|getresponse\\.com|ghost\\.org|github\\.com|gitlab\\.com|google\\.com|groove\\.co|gumroad\\.com|hbomax\\.com|helpscout\\.com|helpshift\\.com|hilton\\.com|homedepot\\.com|hotels\\.com|hubspot\\.com|hulu\\.com|instagram\\.com|intercom\\.com|iterable\\.com|jenkins\\.io|kayak\\.com|kayako\\.com|kik\\.com|klaviyo\\.com|latimes\\.com|line\\.me|linkedin\\.com|listrak\\.com|livechat\\.com|lyft\\.com|mailchimpapp\\.com|mailerlite\\.com|mailersend\\.com|mailgun\\.net|mailjet\\.com|mandrill\\.com|marketo\\.com|marriott\\.com|mastercard\\.com|mastodon\\.social|mautic\\.org|medium\\.com|meetup\\.com|mlsend\\.com|moosend\\.com|nbcnews\\.com|netflix\\.com|newegg\\.com|nextdoor\\.com|npmjs\\.com|npr\\.org|nypost\\.com|nytimes\\.com|olark\\.com|omnisend\\.com|pandora\\.com|paramountplus\\.com|pardot\\.com|patreon\\.com|paypal\\.com|peacocktv\\.com|pepipost\\.com|phplist\\.com|pinterest\\.com|politico\\.com|postmark\\.com|postmarkapp\\.com|primevideo\\.com|quickbooks\\.intuit\\.com|reddit\\.com|responsys\\.com|reuters\\.com|revue\\.getrevue\\.co|sailthru\\.com|salesforce\\.com|sendfox\\.com|sendgrid\\.net|sendinblue\\.com|sendpulse\\.com|sendwithus\\.com|sendy\\.co|sfgate\\.com|shopify\\.com|signal\\.org|silverpop\\.com|skype\\.com|skyscanner\\.net|slack\\.com|smtp\\.com|snapchat\\.com|socketlabs\\.com|sparkpost\\.com|spotify\\.com|squareup\\.com|stackoverflow\\.com|stripe\\.com|substack\\.com|target\\.com|tawk\\.to|telegram\\.org|theguardian\\.com|threads\\.net|tiktok\\.com|tinyletter\\.com|tripadvisor\\.com|trivago\\.com|tumblr\\.com|turbosmtp\\.com|twitch\\.tv|twitter\\.com|uber\\.com|usatoday\\.com|uservoice\\.com|venmo\\.com|viber\\.com|vimeo\\.com|visa\\.com|walmart\\.com|washingtonpost\\.com|wayfair\\.com|wechat\\.com|wellsfargo\\.com|whatsapp\\.com|wsj\\.com|x\\.com|yesmail\\.com|youtube\\.com|zellepay\\.com|zendesk\\.com|zoom\\.us|zopim\\.com)(>|$)"
+#define SENDER_FILTER_LIST "(accounting.*@|billing.*@|bounce.*@|do.?not.?reply.*@|no.?reply.*@|alert.*@|help.*@|service.*@|offers.*@|sales.*@|newsletter.*@|announcement.*@)|[@\\.](abcnews\\.go\\.com|activecampaign\\.com|acxiom\\.com|airbnb\\.com|aliexpress\\.com|amazon\\.com|amazonses\\.com|americanexpress\\.com|apnews\\.com|atlassian\\.com|audible\\.com|aweber\\.com|bankofamerica\\.com|bbc\\.com|beehiiv\\.com|benchmark\\.email|bestbuy\\.com|bitbucket\\.org|bluesky\\.app|booking\\.com|bostonglobe\\.com|bronto\\.com|bsky\\.app|buttondown\\.email|campaignmonitor\\.com|cashapp\\.com|cbsnews\\.com|chase\\.com|cheetahmail\\.com|chicagotribune\\.com|circleci\\.com|clubhouse\\.com|cnn\\.com|codecov\\.io|constantcontact\\.com|convertkit\\.com|crisp\\.chat|deezer\\.com|desk\\.com|discord\\.com|discoursemail\\.com|discoveryplus\\.com|disneyplus\\.com|docker\\.com|drift\\.com|drip\\.com|ebay\\.com|edx\\.org|elasticemail\\.com|eloqua\\.com|emailoctopus\\.com|emarsys\\.com|epsilon\\.com|etsy\\.com|exacttarget\\.com|expedia\\.com|experian\\.com|facebook\\.com|facebookmail\\.com|flickr\\.com|foxnews\\.com|freshdesk\\.com|freshworks\\.com|getresponse\\.com|ghost\\.org|github\\.com|gitlab\\.com|google\\.com|groove\\.co|gumroad\\.com|hbomax\\.com|helpscout\\.com|helpshift\\.com|hilton\\.com|homedepot\\.com|hotels\\.com|hubspot\\.com|hulu\\.com|instagram\\.com|intercom\\.com|iterable\\.com|jenkins\\.io|kayak\\.com|kayako\\.com|kik\\.com|klaviyo\\.com|latimes\\.com|line\\.me|linkedin\\.com|listrak\\.com|livechat\\.com|lyft\\.com|mailchimpapp\\.com|mailerlite\\.com|mailersend\\.com|mailgun\\.net|mailjet\\.com|mandrill\\.com|marketo\\.com|marriott\\.com|mastercard\\.com|mastodon\\.social|mautic\\.org|medium\\.com|meetup\\.com|mlsend\\.com|moosend\\.com|nbcnews\\.com|netflix\\.com|newegg\\.com|nextdoor\\.com|npmjs\\.com|npr\\.org|nypost\\.com|nytimes\\.com|olark\\.com|omnisend\\.com|pandora\\.com|paramountplus\\.com|pardot\\.com|patreon\\.com|paypal\\.com|peacocktv\\.com|pepipost\\.com|phplist\\.com|pinterest\\.com|politico\\.com|postmark\\.com|postmarkapp\\.com|primevideo\\.com|quickbooks\\.intuit\\.com|reddit\\.com|responsys\\.com|reuters\\.com|revue\\.getrevue\\.co|sailthru\\.com|salesforce\\.com|sendfox\\.com|sendgrid\\.net|sendinblue\\.com|sendpulse\\.com|sendwithus\\.com|sendy\\.co|sfgate\\.com|shopify\\.com|signal\\.org|silverpop\\.com|skype\\.com|skyscanner\\.net|slack\\.com|smtp\\.com|snapchat\\.com|socketlabs\\.com|sparkpost\\.com|spotify\\.com|squareup\\.com|stackoverflow\\.com|stripe\\.com|substack\\.com|target\\.com|tawk\\.to|telegram\\.org|theguardian\\.com|threads\\.net|tiktok\\.com|tinyletter\\.com|tripadvisor\\.com|trivago\\.com|tumblr\\.com|turbosmtp\\.com|twitch\\.tv|twitter\\.com|uber\\.com|usatoday\\.com|uservoice\\.com|venmo\\.com|viber\\.com|vimeo\\.com|visa\\.com|walmart\\.com|washingtonpost\\.com|wayfair\\.com|wechat\\.com|wellsfargo\\.com|whatsapp\\.com|wsj\\.com|x\\.com|yesmail\\.com|youtube\\.com|zellepay\\.com|zendesk\\.com|zoom\\.us|zopim\\.com)(>|$)"
 
 #define HR_BUFFER_SIZE 1024
 
@@ -700,6 +700,15 @@ char *TheDomain;
 		_exit(0);
 	}
 	
+	/* Check for X-Report-Abuse-To header. This is most commonly associated with
+	transactional messages, although it is used by a very small number of boutique email
+	hosting providers. There will be false positives. */
+	if ( inspect_headers("x-report-abuse-to", (char *)NULL ) != (char *)NULL )
+	{
+		fprintf(stderr,"AUTORESPOND: Message has X-Report-Abuse-To header, ignoring.\n");
+		_exit(0);
+	}
+	
 	/* Check for X-Patreon-UUID header */
 	if ( inspect_headers("x-patreon-uuid", (char *)NULL ) != (char *)NULL )
 	{
@@ -719,6 +728,14 @@ char *TheDomain;
 	if ( ptr != NULL && strchr( ptr, '*' ) != NULL )
 	{
 		fprintf(stderr,"AUTORESPOND: X-Spam-Level header contains asterisk, ignoring: %s.\n", ptr);
+		_exit(0);
+	}
+	
+	/* User-Agent: Heirloom mailx is a CLI mail agent */
+	ptr = inspect_headers("user-agent", (char *)NULL );
+	if ( ptr != NULL && strstr( ptr, "mailx" ) != NULL )
+	{
+		fprintf(stderr,"AUTORESPOND: User-Agent header contains mailx, ignoring: %s.\n", ptr);
 		_exit(0);
 	}
 	
