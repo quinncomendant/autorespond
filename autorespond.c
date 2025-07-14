@@ -85,6 +85,10 @@ RPLINE - Return-Path
 #include <sys/wait.h>
 #include <ctype.h>
 #include <regex.h>
+#include <limits.h>
+#ifndef PATH_MAX
+#define PATH_MAX 4096
+#endif
 
 #define DEFAULT_MH	1	/* default value for message_handling flag */
 #define DEFAULT_FROM	"$"	/* default "from" for the autorespond */
@@ -110,8 +114,153 @@ headers *header = (headers *)NULL;
 static char *binqqargs[2] = { "bin/qmail-queue", 0 };
 static char *montab[12] = { "Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec" };
 
+/* Function prototypes */
+void * safe_malloc(size_t size);
+void * safe_realloc(void * ptr, size_t size);
+char * read_file(char * filename);
+int validate_directory_path(const char *path);
+int validate_email_address(const char *email);
+int create_secure_temp_file(char *filename_buf, size_t buf_size, const char *prefix);
+char* sanitize_header_content(const char* content);
+int validate_header_tag(const char* tag);
 
+/****************************************************************/
 
+/* Validate directory path to prevent directory traversal attacks */
+int validate_directory_path(const char *path) {
+    if (!path || strlen(path) == 0) {
+        return 0;
+    }
+    
+    /* Check for directory traversal attempts */
+    if (strstr(path, "../") || strstr(path, "..\\") || strcmp(path, "..") == 0) {
+        return 0;
+    }
+    
+    /* Check for other dangerous patterns */
+    if (strchr(path, '\0') != path + strlen(path)) {
+        return 0;  /* embedded null bytes */
+    }
+    
+    /* Check for excessive length */
+    if (strlen(path) > PATH_MAX) {
+        return 0;
+    }
+    
+    return 1;  /* path is safe */
+}
+
+/* Validate email address format */
+int validate_email_address(const char *email) {
+    const char *at_pos;
+    
+    if (!email || strlen(email) == 0) {
+        return 0;
+    }
+    
+    /* Basic email validation */
+    at_pos = strchr(email, '@');
+    if (!at_pos || at_pos == email || at_pos == email + strlen(email) - 1) {
+        return 0;
+    }
+    
+    /* Check for dangerous characters */
+    if (strchr(email, '\n') || strchr(email, '\r') || strchr(email, '\0') != email + strlen(email)) {
+        return 0;
+    }
+    
+    return 1;
+}
+
+/* Create secure temporary file with random name */
+int create_secure_temp_file(char *filename_buf, size_t buf_size, const char *prefix) {
+    int fd;
+    int attempts = 0;
+    unsigned int rand_suffix;
+    
+    do {
+        /* Generate random suffix */
+        rand_suffix = (unsigned int)random();
+        
+        /* Create filename with random component */
+        snprintf(filename_buf, buf_size, "%s%u.%u.%u", 
+                prefix, getpid(), (unsigned int)time(NULL), rand_suffix);
+        
+        /* Try to create file exclusively */
+        fd = open(filename_buf, O_CREAT | O_EXCL | O_WRONLY, 0600);
+        attempts++;
+        
+    } while (fd == -1 && errno == EEXIST && attempts < 100);
+    
+    return fd;
+}
+
+/* Sanitize header content to prevent injection attacks */
+char* sanitize_header_content(const char* content) {
+    size_t len;
+    char* sanitized;
+    size_t j = 0;
+    size_t i;
+    
+    if (!content) return NULL;
+    
+    len = strlen(content);
+    if (len > 8192) {  /* Limit header length */
+        return NULL;
+    }
+    
+    sanitized = (char*)safe_malloc(len + 1);
+    
+    for (i = 0; i < len; i++) {
+        unsigned char c = content[i];
+        
+        /* Remove control characters except tab, CR, LF */
+        if (c < 32 && c != '\t' && c != '\r' && c != '\n') {
+            continue;
+        }
+        
+        /* Remove DEL character */
+        if (c == 127) {
+            continue;
+        }
+        
+        /* Prevent header injection */
+        if (c == '\n' || c == '\r') {
+            /* Only allow if followed by whitespace (header continuation) */
+            if (i + 1 < len && (content[i + 1] == ' ' || content[i + 1] == '\t')) {
+                sanitized[j++] = c;
+            }
+        } else {
+            sanitized[j++] = c;
+        }
+    }
+    
+    sanitized[j] = '\0';
+    return sanitized;
+}
+
+/* Validate header tag format */
+int validate_header_tag(const char* tag) {
+    const char* p;
+    
+    if (!tag || strlen(tag) == 0) {
+        return 0;
+    }
+    
+    /* Check length limit */
+    if (strlen(tag) > 256) {
+        return 0;
+    }
+    
+    /* Header tags should only contain printable ASCII characters */
+    for (p = tag; *p; p++) {
+        if (*p < 33 || *p > 126 || *p == ':') {
+            return 0;
+        }
+    }
+    
+    return 1;
+}
 
 /****************************************************************/
 void * safe_malloc(size_t size)
@@ -168,7 +317,21 @@ char * frb;
 	}
 
 	/*this may not be portable (although it almost always is)*/
-	size = ftell(f);
+	{
+		long file_size = ftell(f);
+		if(file_size == -1) {
+			fclose(f);
+			return NULL;
+		}
+		
+		/* Check for potential overflow */
+		if(file_size > ULONG_MAX - 100) {
+			fclose(f);
+			return NULL;
+		}
+		
+		size = (unsigned long)file_size;
+	}
 
 	/*return to the beginning*/
 	if(fseek(f,0,SEEK_SET)==-1) {
@@ -289,12 +452,24 @@ char msg_buffer[256];
 	/*send the envelopes*/
 
 	fprintf(fde,"F%s",from);
-	fwrite("",1,1,fde);					/*write a null char*/
+	if(fwrite("",1,1,fde) != 1) {					/*write a null char*/
+		fprintf(stderr, "AUTORESPOND: Reply failed to send from %s to %s: Failed to write envelope separator.\n", from, recipients[0]);
+		fclose(fde);
+		return -1;
+	}
 	for(i=0;i<num_recipients;i++) {
 		fprintf(fde,"T%s",recipients[i]);
-		fwrite("",1,1,fde);					/*write a null char*/
+		if(fwrite("",1,1,fde) != 1) {					/*write a null char*/
+			fprintf(stderr, "AUTORESPOND: Reply failed to send from %s to %s: Failed to write recipient separator.\n", from, recipients[0]);
+			fclose(fde);
+			return -1;
+		}
 	}
-	fwrite("",1,1,fde);					/*write a null char*/
+	if(fwrite("",1,1,fde) != 1) {					/*write a null char*/
+		fprintf(stderr, "AUTORESPOND: Reply failed to send from %s to %s: Failed to write final separator.\n", from, recipients[0]);
+		fclose(fde);
+		return -1;
+	}
 	fclose(fde);
 
 	/*wait for qmail-queue to close*/
@@ -347,52 +522,99 @@ void read_headers( FILE *fp )
 		{
 		case ' ' :
 		case '\t' : /* header continued */
-			len = strlen( ptr ) + strlen(act_header->content);
-			act_header->content = safe_realloc( act_header->content, len + 1 );
-			strncat( act_header->content, ptr, len );
-			act_header->content[len] = '\0';
-			
-			/* Strip trailing newlines */
-			len = strlen(act_header->content);
-			while (len > 0 && (act_header->content[len-1] == '\n' || act_header->content[len-1] == '\r')) {
-				act_header->content[len-1] = '\0';
-				len--;
+			if (act_header == NULL) {
+				/* Invalid header continuation without previous header */
+				continue;
+			} else {
+				char* sanitized_continuation;
+				
+				sanitized_continuation = sanitize_header_content(ptr);
+				if (!sanitized_continuation) {
+					continue;
+				}
+				
+				len = strlen( sanitized_continuation ) + strlen(act_header->content);
+				if (len > 8192) { /* Prevent excessive header length */
+					free(sanitized_continuation);
+					continue;
+				}
+				
+				act_header->content = safe_realloc( act_header->content, len + 1 );
+				strncat( act_header->content, sanitized_continuation, len );
+				act_header->content[len] = '\0';
+				
+				free(sanitized_continuation);
+				
+				/* Strip trailing newlines */
+				len = strlen(act_header->content);
+				while (len > 0 && (act_header->content[len-1] == '\n' || act_header->content[len-1] == '\r')) {
+					act_header->content[len-1] = '\0';
+					len--;
+				}
 			}
 			break;
 		default :
 			if ( act_header != (headers *)NULL )
 			{
-				act_header->next = safe_malloc( sizeof(headers) );
+				act_header->next = (headers*)safe_malloc( sizeof(headers) );
 				act_header       = act_header->next;
 			}
 			else
-				header = act_header = safe_malloc( sizeof(headers) );
+				header = act_header = (headers*)safe_malloc( sizeof(headers) );
 
 			act_header->next = (headers *)NULL;
 
-			while( *ptr != ' ' && *ptr != '\t' )
+			while( *ptr != ' ' && *ptr != '\t' && *ptr != ':' && *ptr != '\0' )
 				ptr++;
 
 			/* strip a possible : */
 			len = ( *(ptr-1) == ':' ) ? ptr - h_buffer - 1 : ptr - h_buffer;
 
-			/* skip whitspaces */
-			while( *ptr == ' ' && *ptr == '\t' )
-				ptr++;
-	
-			act_header->tag = safe_malloc( len + 1 );
-			strncpy( act_header->tag, h_buffer, len );
-			act_header->tag[len] = '\0';
+			/* Validate header tag */
+			{
+				char temp_tag[257];
+				char* sanitized_content;
+				
+				if (len > 256) {
+					/* Header tag too long, skip this header */
+					act_header = act_header->next ? act_header->next : header;
+					continue;
+				}
+				
+				strncpy(temp_tag, h_buffer, len);
+				temp_tag[len] = '\0';
+				
+				if (!validate_header_tag(temp_tag)) {
+					/* Invalid header tag, skip this header */
+					act_header = act_header->next ? act_header->next : header;
+					continue;
+				}
 
+				/* skip whitspaces and colon */
+				while( *ptr == ' ' || *ptr == '\t' || *ptr == ':' )
+					ptr++;
+		
+				act_header->tag = (char*)safe_malloc( len + 1 );
+				strncpy( act_header->tag, h_buffer, len );
+				act_header->tag[len] = '\0';
 
-			act_header->content = safe_malloc( strlen( ptr ) + 1 );
-			strcpy( act_header->content, ptr );
+				sanitized_content = sanitize_header_content(ptr);
+				if (!sanitized_content) {
+					/* Invalid header content, use empty string */
+					act_header->content = (char*)safe_malloc(1);
+					act_header->content[0] = '\0';
+				} else {
+					act_header->content = (char*)safe_malloc( strlen( sanitized_content ) + 1 );
+					strcpy( act_header->content, sanitized_content );
+					free(sanitized_content);
+				}
 
-			/* Strip trailing newlines */
-			len = strlen(act_header->content);
-			while (len > 0 && (act_header->content[len-1] == '\n' || act_header->content[len-1] == '\r')) {
-				act_header->content[len-1] = '\0';
-				len--;
+				/* Strip trailing newlines */
+				len = strlen(act_header->content);
+				while (len > 0 && (act_header->content[len-1] == '\n' || act_header->content[len-1] == '\r')) {
+					act_header->content[len-1] = '\0';
+					len--;
+				}
 			}
 
 			break;
@@ -410,9 +632,18 @@ char *strcasestr2( char *_s1, char *_s2 )
 	char *s1;
 	char *s2;
 	char *ptr;
+	char *result = NULL;
 
 	s1 = strdup(_s1);
+	if (s1 == NULL) {
+		return NULL;
+	}
+	
 	s2 = strdup(_s2);
+	if (s2 == NULL) {
+		free(s1);
+		return NULL;
+	}
 
 	for ( ptr = s1; *ptr != '\0'; ptr++ )
 		*ptr = tolower( *ptr );
@@ -422,10 +653,13 @@ char *strcasestr2( char *_s1, char *_s2 )
 
 	ptr = strstr( s1, s2 );
 
-	if ( ptr == (char *)NULL )
-		return (char *)NULL;
-	else
-		return _s1 + (ptr - s1);
+	if ( ptr != (char *)NULL )
+		result = _s1 + (ptr - s1);
+	
+	free(s1);
+	free(s2);
+	
+	return result;
 }
 
 
@@ -438,6 +672,10 @@ char *strcasestr2( char *_s1, char *_s2 )
 char *inspect_headers( char * tag, char *ss )
 {
 	headers *act_header;
+
+	if (!tag) {
+		return (char *)NULL;
+	}
 
 	act_header = header;
 
@@ -462,7 +700,7 @@ char *inspect_headers( char * tag, char *ss )
 
 /*********************************************************
 ** returns the content boundary string for this message */
-char *get_content_boundary()
+char *get_content_boundary(void)
 {
 	char *s, *r;
 
@@ -489,21 +727,32 @@ char *return_header( char *tag )
 	char *b;
 
 	act_header = header;
-	b     = (char *) malloc( 20 );
+	b     = (char *)safe_malloc( 20 );
 	*b    = '\0';
 
 	while ( act_header != (headers *)NULL )
 	{
 		if ( (tag != (char *)NULL && strcasecmp(tag,act_header->tag ) == 0) || tag == (char *)NULL )
 		{
+			/* Validate header content before concatenation */
+			if (!act_header->tag || !act_header->content) {
+				act_header = act_header->next;
+				continue;
+			}
+			
 			len = strlen( b ) + 
 				  strlen( act_header->tag ) + 1 + 
 				  strlen( act_header->content );
 
+			/* Prevent excessive header concatenation */
+			if (len > 16384) {
+				break;
+			}
+
 			b = safe_realloc( b, len + 1);
 
-//			sprintf( b, "%s%s:%s", b, act_header->tag, act_header->content );
 			strcat( b, act_header->tag );
+			strcat( b, ":" );
 			strcat( b, act_header->content );
 
 			b[len] = '\0';
@@ -518,7 +767,7 @@ char *return_header( char *tag )
 /**********************************************************
 ** free header chain ***/
 
-void free_headers()
+void free_headers(void)
 {
 	headers *act_header, *tmp_header;
 
@@ -538,7 +787,7 @@ void free_headers()
 /**********************************************************
 ** print header chain for deguging ***/
 
-void print_header_chain()
+void print_header_chain(void)
 {
 	headers *act_header;
 
@@ -593,11 +842,11 @@ struct dirent * direntp;
 unsigned int message_time;
 char * address;
 unsigned int count;
-char filename[256];
+char filename[512];
 FILE * f;
 unsigned int message_handling = DEFAULT_MH;
-char buffer[256];
-char buffer2[256];
+char buffer[512];
+char buffer2[512];
 char *content_boundary;
 char *rpath = DEFAULT_FROM;
 char *TheUser;
@@ -622,8 +871,15 @@ char *TheDomain;
 
 	TheUser= getenv("EXT");
 	TheDomain= getenv("HOST");
+	
+	/* Validate environment variables */
+	if (!TheUser) TheUser = "unknown";
+	if (!TheDomain) TheDomain = "localhost";
  
 	setvbuf(stderr, NULL, _IONBF, 0);
+	
+	/* Initialize random seed for secure temporary file creation */
+	srandom((unsigned int)time(NULL) ^ getpid());
 
 	if(argc > 7 || argc < 5) {
 		fprintf(stderr, "AUTORESPOND: Invalid arguments. (%d)\n",argc);
@@ -640,11 +896,23 @@ char *TheDomain;
 	if ( argc > 6 )
 		rpath = argv[6];
 
+	/* Validate directory path to prevent directory traversal */
+	if (!validate_directory_path(dir)) {
+		fprintf(stderr, "AUTORESPOND: Invalid directory path.\n");
+		_exit(111);
+	}
+	
+	/* Validate message handling parameter */
+	if (message_handling > 1) {
+		fprintf(stderr, "AUTORESPOND: Invalid message handling flag.\n");
+		_exit(111);
+	}
+
 	if ( *rpath == '+' )
 		rpath = "";
 	if ( *rpath == '$' )
 	{
-		sprintf(buffer2, "%s@%s", TheUser, TheDomain);
+		snprintf(buffer2, sizeof(buffer2), "%s@%s", TheUser, TheDomain);
 		rpath = buffer2;
 	}
 
@@ -670,7 +938,13 @@ char *TheDomain;
 	/*don't autorespond to a mailer-daemon*/
 	if( sender[0]==0 || strncasecmp(sender,"mailer-daemon",13)==0 || strchr(sender,'@')==NULL || strcmp(sender,"#@[]")==0 ) {
 		/*exit with success and continue parsing .qmail file*/
-		fprintf(stderr,"AUTORESPOND:  Stopping on mail from [%s].\n",sender);
+		fprintf(stderr,"AUTORESPOND:  Stopping on mail from [%.*s].\n", 100, sender);
+		_exit(0);
+	}
+	
+	/* Validate sender email address */
+	if (!validate_email_address(sender)) {
+		fprintf(stderr, "AUTORESPOND: Invalid sender email address format.\n");
 		_exit(0);
 	}
 
@@ -743,7 +1017,7 @@ char *TheDomain;
 	ptr = inspect_headers("user-agent", (char *)NULL );
 	if ( ptr != NULL && (strstr( ptr, "mailx" ) != NULL || strstr( ptr, "s-nail" ) != NULL) )
 	{
-		fprintf(stderr,"AUTORESPOND: User-Agent header contains mailx, ignoring: %s.\n", ptr);
+		fprintf(stderr,"AUTORESPOND: User-Agent header contains CLI-based mail agent, ignoring: %s.\n", ptr);
 		_exit(0);
 	}
 	
@@ -784,21 +1058,38 @@ char *TheDomain;
 		fprintf(stderr,"AUTORESPOND: Failed to change into directory.\n");
 		_exit(111);
 	}
+	
+	/* Verify we're in the expected directory and add entry */
+	{
+		char cwd_buffer[PATH_MAX];
+		int log_fd;
+		
+		if (!getcwd(cwd_buffer, sizeof(cwd_buffer))) {
+			fprintf(stderr,"AUTORESPOND: Unable to verify current directory.\n");
+			_exit(111);
+		}
 
-	/*add entry*/
-	sprintf(filename,"A%u.%u",getpid(),timer);
-	f = fopen(filename,"wb");
-	if(f==NULL) {
-		fprintf(stderr,"AUTORESPOND: Unable to create file for [%s].",sender);
-		_exit(111);
-	}
-	if(fwrite(sender,1,strlen(sender),f)!=strlen(sender)) {
-		fprintf(stderr,"AUTORESPOND: Unable to create file for [%s].",sender);
+		/*add entry*/
+		log_fd = create_secure_temp_file(filename, sizeof(filename), "A");
+		if(log_fd == -1) {
+			fprintf(stderr,"AUTORESPOND: Unable to create secure log file for [%.*s].", 100, sender);
+			_exit(111);
+		}
+		f = fdopen(log_fd, "wb");
+		if(f==NULL) {
+			fprintf(stderr,"AUTORESPOND: Unable to open log file stream for [%.*s].", 100, sender);
+			close(log_fd);
+			unlink(filename);
+			_exit(111);
+		}
+		if(fwrite(sender,1,strlen(sender),f)!=strlen(sender)) {
+			fprintf(stderr,"AUTORESPOND: Unable to create file for [%.*s].", 100, sender);
+			fclose(f);
+			unlink(filename);
+			_exit(111);
+		}
 		fclose(f);
-		unlink(filename);
-		_exit(111);
 	}
-	fclose(f);
 
 	/*check if there are too many responses in the logs*/
 	dirp = opendir(".");
@@ -825,63 +1116,79 @@ char *TheDomain;
 			free(address);
 		}
 	}
+	
 	if(count>num) {
-		fprintf(stderr,"AUTORESPOND: too many received from [%s]\n",sender);
+		fprintf(stderr,"AUTORESPOND: too many received from [%.*s]\n", 100, sender);
 		_exit(0); /* don't reply to this message, but allow it to be delivered */
 	}
 
-	sprintf(filename,"tmp%u.%u",getpid(),timer);
-	f = fopen(filename,"wb"); 
+	/* Create temporary file for response */
+	{
+		int temp_fd;
+		
+		temp_fd = create_secure_temp_file(filename, sizeof(filename), "tmp");
+		if(temp_fd == -1) {
+			fprintf(stderr,"AUTORESPOND: Unable to create secure temporary file.\n");
+			_exit(111);
+		}
+		f = fdopen(temp_fd, "wb");
+		if(f==NULL) {
+			fprintf(stderr,"AUTORESPOND: Unable to open temporary file stream.\n");
+			close(temp_fd);
+			unlink(filename);
+			_exit(111);
+		}
 
-	fprintf( f, "%sTo: %s\nX-Original-From: %s\nX-Original-Subject: Re:%s\n%s\n", 
-		my_delivered_to, sender, rpath, inspect_headers( "Subject", (char *) NULL ), message );
+		fprintf( f, "%sTo: %s\nX-Original-From: %s\nX-Original-Subject: Re:%s\n%s\n", 
+			my_delivered_to, sender, rpath, inspect_headers( "Subject", (char *) NULL ), message );
 
-	if ( message_handling == 1 ) {
-		fprintf( f, "%s\n\n", "-------- Original Message --------" );
-		if ( (content_boundary = get_content_boundary()) == (char *)NULL )
-		{
-			while ( fgets( buffer, sizeof(buffer), stdin ) != NULL )
+		if ( message_handling == 1 ) {
+			fprintf( f, "%s\n\n", "-------- Original Message --------" );
+			if ( (content_boundary = get_content_boundary()) == (char *)NULL )
 			{
-				fputs( "> ", f );
-				fputs( buffer, f );
-			}
-		} else
-		{
-			int content_found = 0;
-			while ( fgets( buffer, sizeof(buffer), stdin ) != NULL )
-			{
-				if ( content_found == 1 ) 
+				while ( fgets( buffer, sizeof(buffer), stdin ) != NULL )
 				{
-					if ( strstr( buffer, content_boundary ) != (char *)NULL )
-						break;
 					fputs( "> ", f );
 					fputs( buffer, f );
 				}
-				if ( strstr( buffer, content_boundary ) != (char *)NULL )
+			} else
+			{
+				int content_found = 0;
+				while ( fgets( buffer, sizeof(buffer), stdin ) != NULL )
 				{
-					if ( content_found == 1 )
-						break;
-					else
+					if ( content_found == 1 ) 
 					{
-						free_headers();
-						read_headers( stdin );
-						if ( inspect_headers("Content-Type", "text/plain" ) != (char *)NULL )
-							content_found = 1;
-						continue;
+						if ( strstr( buffer, content_boundary ) != (char *)NULL )
+							break;
+						fputs( "> ", f );
+						fputs( buffer, f );
+					}
+					if ( strstr( buffer, content_boundary ) != (char *)NULL )
+					{
+						if ( content_found == 1 )
+							break;
+						else
+						{
+							free_headers();
+							read_headers( stdin );
+							if ( inspect_headers("Content-Type", "text/plain" ) != (char *)NULL )
+								content_found = 1;
+							continue;
+						}
 					}
 				}
 			}
 		}
+
+		fprintf( f, "\n\n" );
+
+		fclose( f );
+
+		/*send the autoresponse...ignore errors?*/
+		send_message(filename,rpath,&sender,1); 
+
+		unlink( filename );
 	}
-
-	fprintf( f, "\n\n" );
-
-	fclose( f );
-
-	/*send the autoresponse...ignore errors?*/
-	send_message(filename,rpath,&sender,1); 
-
-	unlink( filename );
 
 	_exit(0);
 	return 0;					/*compiler warning squelch*/
