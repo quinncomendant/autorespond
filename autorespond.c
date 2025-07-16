@@ -43,7 +43,7 @@
 
 	TODO:
 
-	- clean up 
+	- clean up
 	- better error handling (e.g. filecreation)
 
 */
@@ -95,7 +95,7 @@ RPLINE - Return-Path
 
 #define WITH_OMESSAGE	1
 
-#define SENDER_FILTER_LIST "(accounting.*@|billing.*@|bounce.*@|do.?not.?reply.*@|no.?reply.*@|alert.*@|help.*@|service.*@|offers.*@|sales.*@|newsletter.*@|announcement.*@)|[@\\.](abcnews\\.go\\.com|activecampaign\\.com|acxiom\\.com|airbnb\\.com|aliexpress\\.com|amazon\\.com|amazonses\\.com|americanexpress\\.com|apnews\\.com|atlassian\\.com|audible\\.com|aweber\\.com|bankofamerica\\.com|bbc\\.com|beehiiv\\.com|benchmark\\.email|bestbuy\\.com|bitbucket\\.org|bluesky\\.app|booking\\.com|bostonglobe\\.com|bronto\\.com|bsky\\.app|buttondown\\.email|campaignmonitor\\.com|cashapp\\.com|cbsnews\\.com|chase\\.com|cheetahmail\\.com|chicagotribune\\.com|circleci\\.com|clubhouse\\.com|cnn\\.com|codecov\\.io|constantcontact\\.com|convertkit\\.com|crisp\\.chat|deezer\\.com|desk\\.com|discord\\.com|discoursemail\\.com|discoveryplus\\.com|disneyplus\\.com|docker\\.com|drift\\.com|drip\\.com|ebay\\.com|edx\\.org|elasticemail\\.com|eloqua\\.com|emailoctopus\\.com|emarsys\\.com|epsilon\\.com|etsy\\.com|exacttarget\\.com|expedia\\.com|experian\\.com|facebook\\.com|facebookmail\\.com|flickr\\.com|foxnews\\.com|freshdesk\\.com|freshworks\\.com|getresponse\\.com|ghost\\.org|github\\.com|gitlab\\.com|google\\.com|groove\\.co|gumroad\\.com|hbomax\\.com|helpscout\\.com|helpshift\\.com|hilton\\.com|homedepot\\.com|hotels\\.com|hubspot\\.com|hulu\\.com|instagram\\.com|intercom\\.com|iterable\\.com|jenkins\\.io|kayak\\.com|kayako\\.com|kik\\.com|klaviyo\\.com|latimes\\.com|line\\.me|linkedin\\.com|listrak\\.com|livechat\\.com|lyft\\.com|mailchimpapp\\.com|mailerlite\\.com|mailersend\\.com|mailgun\\.net|mailjet\\.com|mandrill\\.com|marketo\\.com|marriott\\.com|mastercard\\.com|mastodon\\.social|mautic\\.org|medium\\.com|meetup\\.com|mlsend\\.com|moosend\\.com|nbcnews\\.com|netflix\\.com|newegg\\.com|nextdoor\\.com|npmjs\\.com|npr\\.org|nypost\\.com|nytimes\\.com|olark\\.com|omnisend\\.com|pandora\\.com|paramountplus\\.com|pardot\\.com|patreon\\.com|paypal\\.com|peacocktv\\.com|pepipost\\.com|phplist\\.com|pinterest\\.com|politico\\.com|postmark\\.com|postmarkapp\\.com|primevideo\\.com|quickbooks\\.intuit\\.com|reddit\\.com|responsys\\.com|reuters\\.com|revue\\.getrevue\\.co|sailthru\\.com|salesforce\\.com|sendfox\\.com|sendgrid\\.net|sendinblue\\.com|sendpulse\\.com|sendwithus\\.com|sendy\\.co|sfgate\\.com|shopify\\.com|signal\\.org|silverpop\\.com|skype\\.com|skyscanner\\.net|slack\\.com|smtp\\.com|snapchat\\.com|socketlabs\\.com|sparkpost\\.com|spotify\\.com|squareup\\.com|stackoverflow\\.com|stripe\\.com|substack\\.com|target\\.com|tawk\\.to|telegram\\.org|theguardian\\.com|threads\\.net|tiktok\\.com|tinyletter\\.com|tripadvisor\\.com|trivago\\.com|tumblr\\.com|turbosmtp\\.com|twitch\\.tv|twitter\\.com|uber\\.com|usatoday\\.com|uservoice\\.com|venmo\\.com|viber\\.com|vimeo\\.com|visa\\.com|walmart\\.com|washingtonpost\\.com|wayfair\\.com|wechat\\.com|wellsfargo\\.com|whatsapp\\.com|wsj\\.com|x\\.com|yesmail\\.com|youtube\\.com|zellepay\\.com|zendesk\\.com|zoom\\.us|zopim\\.com)(>|$)"
+#define SENDER_FILTER_LIST "(abuse|account|activation|admin|alert|announce|assistance|auto.?reply|automate|billing|bounce|careers|complaints|compliance|confirm|contact|customer|daemon|deals|delivery|do.?not.?reply|enquir(y|ies)|feedback|finance|fraud|help|info|inquir(y|ies)|invoic(e|ing)|jobs|legal|mailer|maintenance|marketing|news|no.?reply|notification|offers|onboard|opt.?out|order|payment|postmaster|privacy|project|promo|recovery|recruit|registration|reset|sales|security|service|shipping|subscribe|support|system|undeliver|update|urgent|verif(y|ication)|webmaster|welcome).*@|[@.](abcnews\\.go\\.com|activecampaign\\.com|acxiom\\.com|airbnb\\.com|aliexpress\\.com|amazon\\.com|amazonses\\.com|americanexpress\\.com|apnews\\.com|atlassian\\.com|audible\\.com|aweber\\.com|bankofamerica\\.com|bbc\\.com|beehiiv\\.com|benchmark\\.email|bestbuy\\.com|bitbucket\\.org|bluesky\\.app|booking\\.com|bostonglobe\\.com|bronto\\.com|bsky\\.app|buttondown\\.email|campaignmonitor\\.com|cashapp\\.com|cbsnews\\.com|chase\\.com|cheetahmail\\.com|chicagotribune\\.com|circleci\\.com|clubhouse\\.com|cnn\\.com|codecov\\.io|constantcontact\\.com|convertkit\\.com|crisp\\.chat|deezer\\.com|desk\\.com|discord\\.com|discoursemail\\.com|discoveryplus\\.com|disneyplus\\.com|docker\\.com|drift\\.com|drip\\.com|ebay\\.com|edx\\.org|elasticemail\\.com|eloqua\\.com|emailoctopus\\.com|emarsys\\.com|epsilon\\.com|etsy\\.com|exacttarget\\.com|expedia\\.com|experian\\.com|facebook\\.com|facebookmail\\.com|flickr\\.com|foxnews\\.com|freshdesk\\.com|freshworks\\.com|getresponse\\.com|ghost\\.org|github\\.com|gitlab\\.com|google\\.com|groove\\.co|gumroad\\.com|hbomax\\.com|helpscout\\.com|helpshift\\.com|hilton\\.com|homedepot\\.com|hotels\\.com|hubspot\\.com|hulu\\.com|instagram\\.com|intercom\\.com|iterable\\.com|jenkins\\.io|kayak\\.com|kayako\\.com|kik\\.com|klaviyo\\.com|latimes\\.com|line\\.me|linkedin\\.com|listrak\\.com|livechat\\.com|lyft\\.com|mailchimpapp\\.com|mailerlite\\.com|mailersend\\.com|mailgun\\.net|mailjet\\.com|mandrill\\.com|marketo\\.com|marriott\\.com|mastercard\\.com|mastodon\\.social|mautic\\.org|medium\\.com|meetup\\.com|mlsend\\.com|moosend\\.com|nbcnews\\.com|netflix\\.com|newegg\\.com|nextdoor\\.com|npmjs\\.com|npr\\.org|nypost\\.com|nytimes\\.com|olark\\.com|omnisend\\.com|pandora\\.com|paramountplus\\.com|pardot\\.com|patreon\\.com|paypal\\.com|peacocktv\\.com|pepipost\\.com|phplist\\.com|pinterest\\.com|politico\\.com|postmark\\.com|postmarkapp\\.com|primevideo\\.com|quickbooks\\.intuit\\.com|reddit\\.com|responsys\\.com|reuters\\.com|revue\\.getrevue\\.co|sailthru\\.com|salesforce\\.com|sendfox\\.com|sendgrid\\.net|sendinblue\\.com|sendpulse\\.com|sendwithus\\.com|sendy\\.co|sfgate\\.com|shopify\\.com|signal\\.org|silverpop\\.com|skype\\.com|skyscanner\\.net|slack\\.com|smtp\\.com|snapchat\\.com|socketlabs\\.com|sparkpost\\.com|spotify\\.com|squareup\\.com|stackoverflow\\.com|stripe\\.com|substack\\.com|target\\.com|tawk\\.to|telegram\\.org|theguardian\\.com|threads\\.net|tiktok\\.com|tinyletter\\.com|tripadvisor\\.com|trivago\\.com|tumblr\\.com|turbosmtp\\.com|twitch\\.tv|twitter\\.com|uber\\.com|usatoday\\.com|uservoice\\.com|venmo\\.com|viber\\.com|vimeo\\.com|visa\\.com|walmart\\.com|washingtonpost\\.com|wayfair\\.com|wechat\\.com|wellsfargo\\.com|whatsapp\\.com|wsj\\.com|x\\.com|yesmail\\.com|youtube\\.com|zellepay\\.com|zendesk\\.com|zoom\\.us|zopim\\.com)(>|$)"
 
 #define HR_BUFFER_SIZE 1024
 
@@ -131,44 +131,44 @@ int validate_directory_path(const char *path) {
     if (!path || strlen(path) == 0) {
         return 0;
     }
-    
+
     /* Check for directory traversal attempts */
     if (strstr(path, "../") || strstr(path, "..\\") || strcmp(path, "..") == 0) {
         return 0;
     }
-    
+
     /* Check for other dangerous patterns */
     if (strchr(path, '\0') != path + strlen(path)) {
         return 0;  /* embedded null bytes */
     }
-    
+
     /* Check for excessive length */
     if (strlen(path) > PATH_MAX) {
         return 0;
     }
-    
+
     return 1;  /* path is safe */
 }
 
 /* Validate email address format */
 int validate_email_address(const char *email) {
     const char *at_pos;
-    
+
     if (!email || strlen(email) == 0) {
         return 0;
     }
-    
+
     /* Basic email validation */
     at_pos = strchr(email, '@');
     if (!at_pos || at_pos == email || at_pos == email + strlen(email) - 1) {
         return 0;
     }
-    
+
     /* Check for dangerous characters */
     if (strchr(email, '\n') || strchr(email, '\r') || strchr(email, '\0') != email + strlen(email)) {
         return 0;
     }
-    
+
     return 1;
 }
 
@@ -177,21 +177,21 @@ int create_secure_temp_file(char *filename_buf, size_t buf_size, const char *pre
     int fd;
     int attempts = 0;
     unsigned int rand_suffix;
-    
+
     do {
         /* Generate random suffix */
         rand_suffix = (unsigned int)random();
-        
+
         /* Create filename with random component */
-        snprintf(filename_buf, buf_size, "%s%u.%u.%u", 
+        snprintf(filename_buf, buf_size, "%s%u.%u.%u",
                 prefix, getpid(), (unsigned int)time(NULL), rand_suffix);
-        
+
         /* Try to create file exclusively */
         fd = open(filename_buf, O_CREAT | O_EXCL | O_WRONLY, 0600);
         attempts++;
-        
+
     } while (fd == -1 && errno == EEXIST && attempts < 100);
-    
+
     return fd;
 }
 
@@ -201,29 +201,29 @@ char* sanitize_header_content(const char* content) {
     char* sanitized;
     size_t j = 0;
     size_t i;
-    
+
     if (!content) return NULL;
-    
+
     len = strlen(content);
     if (len > 8192) {  /* Limit header length */
         return NULL;
     }
-    
+
     sanitized = (char*)safe_malloc(len + 1);
-    
+
     for (i = 0; i < len; i++) {
         unsigned char c = content[i];
-        
+
         /* Remove control characters except tab, CR, LF */
         if (c < 32 && c != '\t' && c != '\r' && c != '\n') {
             continue;
         }
-        
+
         /* Remove DEL character */
         if (c == 127) {
             continue;
         }
-        
+
         /* Prevent header injection */
         if (c == '\n' || c == '\r') {
             /* Only allow if followed by whitespace (header continuation) */
@@ -234,7 +234,7 @@ char* sanitize_header_content(const char* content) {
             sanitized[j++] = c;
         }
     }
-    
+
     sanitized[j] = '\0';
     return sanitized;
 }
@@ -242,23 +242,23 @@ char* sanitize_header_content(const char* content) {
 /* Validate header tag format */
 int validate_header_tag(const char* tag) {
     const char* p;
-    
+
     if (!tag || strlen(tag) == 0) {
         return 0;
     }
-    
+
     /* Check length limit */
     if (strlen(tag) > 256) {
         return 0;
     }
-    
+
     /* Header tags should only contain printable ASCII characters */
     for (p = tag; *p; p++) {
         if (*p < 33 || *p > 126 || *p == ':') {
             return 0;
         }
     }
-    
+
     return 1;
 }
 
@@ -323,13 +323,13 @@ char * frb;
 			fclose(f);
 			return NULL;
 		}
-		
+
 		/* Check for potential overflow */
 		if(file_size > ULONG_MAX - 100) {
 			fclose(f);
 			return NULL;
 		}
-		
+
 		size = (unsigned long)file_size;
 	}
 
@@ -438,7 +438,7 @@ char msg_buffer[256];
 		,dt->tm_mday,montab[dt->tm_mon],dt->tm_year+1900,dt->tm_hour,dt->tm_min,dt->tm_sec,msgwhen,getpid(),getenv("LOCAL") );
 
 	mfp = fopen( msg, "rb" );
-	
+
 	while ( fgets( msg_buffer, sizeof(msg_buffer), mfp ) != NULL )
 	{
 		fprintf(fdm,"%s",msg_buffer);
@@ -527,24 +527,24 @@ void read_headers( FILE *fp )
 				continue;
 			} else {
 				char* sanitized_continuation;
-				
+
 				sanitized_continuation = sanitize_header_content(ptr);
 				if (!sanitized_continuation) {
 					continue;
 				}
-				
+
 				len = strlen( sanitized_continuation ) + strlen(act_header->content);
 				if (len > 8192) { /* Prevent excessive header length */
 					free(sanitized_continuation);
 					continue;
 				}
-				
+
 				act_header->content = safe_realloc( act_header->content, len + 1 );
 				strncat( act_header->content, sanitized_continuation, len );
 				act_header->content[len] = '\0';
-				
+
 				free(sanitized_continuation);
-				
+
 				/* Strip trailing newlines */
 				len = strlen(act_header->content);
 				while (len > 0 && (act_header->content[len-1] == '\n' || act_header->content[len-1] == '\r')) {
@@ -574,16 +574,16 @@ void read_headers( FILE *fp )
 			{
 				char temp_tag[257];
 				char* sanitized_content;
-				
+
 				if (len > 256) {
 					/* Header tag too long, skip this header */
 					act_header = act_header->next ? act_header->next : header;
 					continue;
 				}
-				
+
 				strncpy(temp_tag, h_buffer, len);
 				temp_tag[len] = '\0';
-				
+
 				if (!validate_header_tag(temp_tag)) {
 					/* Invalid header tag, skip this header */
 					act_header = act_header->next ? act_header->next : header;
@@ -593,7 +593,7 @@ void read_headers( FILE *fp )
 				/* skip whitspaces and colon */
 				while( *ptr == ' ' || *ptr == '\t' || *ptr == ':' )
 					ptr++;
-		
+
 				act_header->tag = (char*)safe_malloc( len + 1 );
 				strncpy( act_header->tag, h_buffer, len );
 				act_header->tag[len] = '\0';
@@ -638,7 +638,7 @@ char *strcasestr2( char *_s1, char *_s2 )
 	if (s1 == NULL) {
 		return NULL;
 	}
-	
+
 	s2 = strdup(_s2);
 	if (s2 == NULL) {
 		free(s1);
@@ -655,10 +655,10 @@ char *strcasestr2( char *_s1, char *_s2 )
 
 	if ( ptr != (char *)NULL )
 		result = _s1 + (ptr - s1);
-	
+
 	free(s1);
 	free(s2);
-	
+
 	return result;
 }
 
@@ -666,7 +666,7 @@ char *strcasestr2( char *_s1, char *_s2 )
 
 
 /*********************************************************
-** look up header tag in chain and try to find search string 
+** look up header tag in chain and try to find search string
 ** returns pointer to contetnt on success other wise NULL */
 
 char *inspect_headers( char * tag, char *ss )
@@ -704,12 +704,12 @@ char *get_content_boundary(void)
 {
 	char *s, *r;
 
-	if ( (s = inspect_headers( "Content-Type", (char *)NULL )) == (char *)NULL) 
+	if ( (s = inspect_headers( "Content-Type", (char *)NULL )) == (char *)NULL)
 		return (char *)NULL;
 
 	if ( (r = strcasestr2( s, "boundary=" )) == (char *)NULL)
 		return (char *)NULL;
-	
+
 	*(r+strlen(r)-2) = '\0'; /* delete quote at the end */
 
 	return r+10; /* point to first cahr after quote */
@@ -739,9 +739,9 @@ char *return_header( char *tag )
 				act_header = act_header->next;
 				continue;
 			}
-			
-			len = strlen( b ) + 
-				  strlen( act_header->tag ) + 1 + 
+
+			len = strlen( b ) +
+				  strlen( act_header->tag ) + 1 +
 				  strlen( act_header->content );
 
 			/* Prevent excessive header concatenation */
@@ -808,13 +808,13 @@ void print_header_chain(void)
 int regex_matches_header(const char *header_str) {
 	regex_t regex;
 	int ret;
-	
+
 	ret = regcomp(&regex, SENDER_FILTER_LIST, REG_EXTENDED | REG_ICASE);
 	if (ret) return 0; /* return 0 on regex compilation error */
-	
+
 	ret = regexec(&regex, header_str, 0, NULL, 0);
 	regfree(&regex);
-	
+
 	return (ret == 0); /* return 1 if match, 0 if no match */
 }
 
@@ -871,13 +871,13 @@ char *TheDomain;
 
 	TheUser= getenv("EXT");
 	TheDomain= getenv("HOST");
-	
+
 	/* Validate environment variables */
 	if (!TheUser) TheUser = "unknown";
 	if (!TheDomain) TheDomain = "localhost";
- 
+
 	setvbuf(stderr, NULL, _IONBF, 0);
-	
+
 	/* Initialize random seed for secure temporary file creation */
 	srandom((unsigned int)time(NULL) ^ getpid());
 
@@ -901,7 +901,7 @@ char *TheDomain;
 		fprintf(stderr, "AUTORESPOND: Invalid directory path.\n");
 		_exit(111);
 	}
-	
+
 	/* Validate message handling parameter */
 	if (message_handling > 1) {
 		fprintf(stderr, "AUTORESPOND: Invalid message handling flag.\n");
@@ -941,7 +941,7 @@ char *TheDomain;
 		fprintf(stderr,"AUTORESPOND:  Stopping on mail from [%.*s].\n", 100, sender);
 		_exit(0);
 	}
-	
+
 	/* Validate sender email address */
 	if (!validate_email_address(sender)) {
 		fprintf(stderr, "AUTORESPOND: Invalid sender email address format.\n");
@@ -967,21 +967,21 @@ char *TheDomain;
 		fprintf(stderr,"AUTORESPOND: Junk mail received.\n");
 		_exit(0); /* don't reply to bulk, junk, or list mail */
 	}
-	
+
 	/* Check for List-Id header */
 	if ( inspect_headers("list-id", (char *)NULL ) != (char *)NULL )
 	{
 		fprintf(stderr,"AUTORESPOND: Message has List-Id header, ignoring.\n");
 		_exit(0);
 	}
-	
+
 	/* Check for List-Unsubscribe header */
 	if ( inspect_headers("list-unsubscribe", (char *)NULL ) != (char *)NULL )
 	{
 		fprintf(stderr,"AUTORESPOND: Message has List-Unsubscribe header, ignoring.\n");
 		_exit(0);
 	}
-	
+
 	/* Check for X-Report-Abuse-To header. This is most commonly associated with
 	transactional messages, although it is used by a very small number of boutique email
 	hosting providers. There will be false positives. */
@@ -990,21 +990,21 @@ char *TheDomain;
 		fprintf(stderr,"AUTORESPOND: Message has X-Report-Abuse-To header, ignoring.\n");
 		_exit(0);
 	}
-	
+
 	/* Check for X-Patreon-UUID header */
 	if ( inspect_headers("x-patreon-uuid", (char *)NULL ) != (char *)NULL )
 	{
 		fprintf(stderr,"AUTORESPOND: Message has X-Patreon-UUID header, ignoring.\n");
 		_exit(0);
 	}
-	
+
 	/* Check for X-Mailgun-Tag header */
 	if ( inspect_headers("x-mailgun-tag", (char *)NULL ) != (char *)NULL )
 	{
 		fprintf(stderr,"AUTORESPOND: Message has X-Mailgun-Tag header, ignoring.\n");
 		_exit(0);
 	}
-	
+
 	/* Check X-Spam-Level for asterisks */
 	ptr = inspect_headers("x-spam-level", (char *)NULL );
 	if ( ptr != NULL && strchr( ptr, '*' ) != NULL )
@@ -1012,7 +1012,7 @@ char *TheDomain;
 		fprintf(stderr,"AUTORESPOND: X-Spam-Level header contains asterisk, ignoring: %s.\n", ptr);
 		_exit(0);
 	}
-	
+
 	/* Check for CLI-based mail agents */
 	ptr = inspect_headers("user-agent", (char *)NULL );
 	if ( ptr != NULL && (strstr( ptr, "mailx" ) != NULL || strstr( ptr, "s-nail" ) != NULL) )
@@ -1020,7 +1020,7 @@ char *TheDomain;
 		fprintf(stderr,"AUTORESPOND: User-Agent header contains CLI-based mail agent, ignoring: %s.\n", ptr);
 		_exit(0);
 	}
-	
+
 	/* Check Sender header against filter list */
 	ptr = inspect_headers("sender", (char *)NULL );
 	if ( ptr != NULL && regex_matches_header( ptr ) )
@@ -1028,7 +1028,7 @@ char *TheDomain;
 		fprintf(stderr,"AUTORESPOND: Sender header matches filter list, ignoring: %s.\n", ptr);
 		_exit(0);
 	}
-	
+
 	/* Check From header against filter list */
 	ptr = inspect_headers("from", (char *)NULL );
 	if ( ptr != NULL && regex_matches_header( ptr ) )
@@ -1036,7 +1036,7 @@ char *TheDomain;
 		fprintf(stderr,"AUTORESPOND: From header matches filter list, ignoring: %s.\n", ptr);
 		_exit(0);
 	}
-	
+
 	/* Check Reply-To header against filter list */
 	ptr = inspect_headers("reply-to", (char *)NULL );
 	if ( ptr != NULL && regex_matches_header( ptr ) )
@@ -1044,7 +1044,7 @@ char *TheDomain;
 		fprintf(stderr,"AUTORESPOND: Reply-To header matches filter list, ignoring: %s.\n", ptr);
 		_exit(0);
 	}
-	
+
 	/* Check Return-Path header against filter list */
 	ptr = inspect_headers("return-path", (char *)NULL );
 	if ( ptr != NULL && regex_matches_header( ptr ) )
@@ -1058,12 +1058,12 @@ char *TheDomain;
 		fprintf(stderr,"AUTORESPOND: Failed to change into directory.\n");
 		_exit(111);
 	}
-	
+
 	/* Verify we're in the expected directory and add entry */
 	{
 		char cwd_buffer[PATH_MAX];
 		int log_fd;
-		
+
 		if (!getcwd(cwd_buffer, sizeof(cwd_buffer))) {
 			fprintf(stderr,"AUTORESPOND: Unable to verify current directory.\n");
 			_exit(111);
@@ -1116,7 +1116,7 @@ char *TheDomain;
 			free(address);
 		}
 	}
-	
+
 	if(count>num) {
 		fprintf(stderr,"AUTORESPOND: too many received from [%.*s]\n", 100, sender);
 		_exit(0); /* don't reply to this message, but allow it to be delivered */
@@ -1125,7 +1125,7 @@ char *TheDomain;
 	/* Create temporary file for response */
 	{
 		int temp_fd;
-		
+
 		temp_fd = create_secure_temp_file(filename, sizeof(filename), "tmp");
 		if(temp_fd == -1) {
 			fprintf(stderr,"AUTORESPOND: Unable to create secure temporary file.\n");
@@ -1139,7 +1139,7 @@ char *TheDomain;
 			_exit(111);
 		}
 
-		fprintf( f, "%sTo: %s\nX-Original-From: %s\nX-Original-Subject: Re:%s\n%s\n", 
+		fprintf( f, "%sTo: %s\nX-Original-From: %s\nX-Original-Subject: Re:%s\n%s\n",
 			my_delivered_to, sender, rpath, inspect_headers( "Subject", (char *) NULL ), message );
 
 		if ( message_handling == 1 ) {
@@ -1156,7 +1156,7 @@ char *TheDomain;
 				int content_found = 0;
 				while ( fgets( buffer, sizeof(buffer), stdin ) != NULL )
 				{
-					if ( content_found == 1 ) 
+					if ( content_found == 1 )
 					{
 						if ( strstr( buffer, content_boundary ) != (char *)NULL )
 							break;
@@ -1185,7 +1185,7 @@ char *TheDomain;
 		fclose( f );
 
 		/*send the autoresponse...ignore errors?*/
-		send_message(filename,rpath,&sender,1); 
+		send_message(filename,rpath,&sender,1);
 
 		unlink( filename );
 	}
